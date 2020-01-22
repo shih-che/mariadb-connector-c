@@ -110,6 +110,7 @@ main () {
 
   log "copy ca file"
     cp "${caCertFile}" "${sslDir}/cacert.pem"
+    cp "${caCertFile}" "${sslDir}/"`openssl x509 -in "${caCertFile}" -noout -issuer_hash`.0
 
   openssl x509 \
     -req \
