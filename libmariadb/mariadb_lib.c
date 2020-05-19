@@ -38,6 +38,7 @@
 #include <signal.h>
 #include <time.h>
 #include <mariadb_dyncol.h>
+#include <ma_redirect.h>
 
 #ifndef __has_feature
 # define __has_feature(x) 0
@@ -1343,6 +1344,11 @@ MYSQL *mthd_my_real_connect(MYSQL *mysql, const char *host, const char *user,
   uint pkt_length, scramble_len, pkt_scramble_len= 0;
   NET	*net= &mysql->net;
 
+  // TODO: remove the following block after implementing it in plugin
+  if (check_redirect(mysql, host, user, passwd, db, port, unix_socket, client_flag)) {
+      return mysql;
+  }
+
   if (!mysql->methods)
     mysql->methods= &MARIADB_DEFAULT_METHODS;
 
@@ -1693,6 +1699,11 @@ MYSQL *mthd_my_real_connect(MYSQL *mysql, const char *host, const char *user,
   /* connection established, apply timeouts */
   ma_pvio_set_timeout(mysql->net.pvio, PVIO_READ_TIMEOUT, mysql->options.read_timeout);
   ma_pvio_set_timeout(mysql->net.pvio, PVIO_WRITE_TIMEOUT, mysql->options.write_timeout);
+
+  // TODO: remove the following block after implementing it in plugin
+  if (!redirect(mysql, client_flag))
+      goto error;
+
   return(mysql);
 
 error:
@@ -3053,6 +3064,9 @@ mysql_optionsv(MYSQL *mysql,enum mysql_option option, ...)
       mysql->options.extension->connect_attrs_len= 0;
     }
     break;
+  case MYSQL_OPT_USE_REDIRECTION:
+    mysql->options.enable_redirect = *(enable_redirect*)arg1;
+    break;
   case MARIADB_OPT_CONNECTION_HANDLER:
     OPT_SET_EXTENDED_VALUE_STR(&mysql->options, connection_handler, (char *)arg1);
     break;
@@ -3766,6 +3780,7 @@ static void mysql_once_init()
 #ifdef HAVE_TLS
   ma_tls_start(0, 0);
 #endif
+  init_redirection_cache();
   ignore_sigpipe();
   mysql_client_init = 1;
 #ifdef _WIN32

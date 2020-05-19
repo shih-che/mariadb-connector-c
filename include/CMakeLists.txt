@@ -9,6 +9,7 @@ SET(MARIADB_CLIENT_INCLUDES ${CC_SOURCE_DIR}/include/mariadb_com.h
                             ${CC_SOURCE_DIR}/include/mariadb_dyncol.h
                             ${CC_SOURCE_DIR}/include/mariadb_ctype.h
                             ${CC_SOURCE_DIR}/include/mariadb_rpl.h
+                            ${CC_SOURCE_DIR}/include/ma_redirect.h
                             )
 IF(NOT IS_SUBPROJECT)
   SET(MARIADB_CLIENT_INCLUDES ${MARIADB_CLIENT_INCLUDES}

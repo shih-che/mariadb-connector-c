@@ -296,6 +296,7 @@ ma_dtoa.c
 mariadb_rpl.c
 ${CC_BINARY_DIR}/libmariadb/ma_client_plugin.c
 ma_io.c
+ma_redirect.c
 ${SSL_SOURCES}
 )
 
